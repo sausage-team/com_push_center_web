@@ -321,7 +321,7 @@ export default {
         } else {
           this.tbList = this.$store.state.task.tableData.title_list
         }
-        console.log('tbList', this.tbList)
+
         if (this.$store.state.task.taskData) {
           this.initEdit()
         }
