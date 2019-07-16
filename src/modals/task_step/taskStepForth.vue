@@ -101,7 +101,23 @@ export default {
       const pro = []
 
       if (this.$store.state.task.tableData) {
-        this.tbList = this.$store.state.task.tableData.title_list
+        if (this.taskStep === this.CONSTANT.taskStep.USER) {
+          let fieldList = []
+          if (this.$store.getters.taskData) {
+            fieldList = this.$store.getters.taskData.output_fields
+          } else if (this.$store.getters.outputFields) {
+            fieldList = this.$store.getters.outputFields
+          }
+          this.tbList = fieldList.map(item => {
+            return {
+              ...item,
+              id: item.id || item.field_id,
+              name: item.name || item.field_name
+            }
+          })
+        } else {
+          this.tbList = this.$store.state.task.tableData.title_list
+        }
       } else {
         pro.push(
           new Promise((resolve, reject) => {
