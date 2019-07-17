@@ -1,4 +1,26 @@
 class CONSTANT {
+  menuType = {
+    'datasource.manage': {
+      name: '数据源管理',
+      target: 'dm'
+    },
+    'work_table.manage': {
+      name: '工作表管理',
+      target: 'wt'
+    },
+    'push_task.manage': {
+      name: '推送任务管理',
+      target: 'tc'
+    },
+    'push_task.monitor': {
+      name: '推送任务监控',
+      target: 'nw'
+    },
+    'push_channel.manage': {
+      name: '推送通道管理',
+      target: 'nm'
+    }
+  }
   tableType = {
     'NORMAL': 1,
     'FLOW': 2

@@ -24,24 +24,10 @@
           <span>首页</span>
           <i></i>
         </el-menu-item>
-        <el-menu-item  v-if="userData.role === 1" index="dm" @click.native="chooseMenu($event, 'dm')">
-          <span>数据源管理</span>
-          <i></i>
-        </el-menu-item>
-        <el-menu-item  v-if="userData.role === 1" index="wt" @click.native="chooseMenu($event, 'wt')">
-          <span>工作表管理</span>
-          <i></i>
-        </el-menu-item>
-        <el-menu-item  index="tc" @click.native="chooseMenu($event, 'tc')">
-          <span>推送任务管理</span>
-          <i></i>
-        </el-menu-item>
-        <el-menu-item  index="nw" @click.native="chooseMenu($event, 'nw')">
-          <span>推送任务监控</span>
-          <i></i>
-        </el-menu-item>
-        <el-menu-item  v-if="userData.role === 1" index="nm" @click.native="chooseMenu($event, 'nm')">
-          <span>推送通道管理</span>
+        <el-menu-item v-for="item in permissionList" :key="item"
+          :index="CONSTANT.menuType[item].target"
+          @click.native="chooseMenu($event, CONSTANT.menuType[item].target)">
+          <span>{{ CONSTANT.menuType[item].name }}</span>
           <i></i>
         </el-menu-item>
       </el-menu>
@@ -82,7 +68,8 @@ export default {
       username: '',
       userData: {},
       menuList: [],
-      shouldShowDicMenu: false
+      shouldShowDicMenu: false,
+      permissionList: []
     }
   },
   mounted () {
@@ -109,6 +96,8 @@ export default {
       })
       this.userData = this.$cookies.get('pc_data')
       this.username = (localStorage.getItem('login_user_data') && JSON.parse(localStorage.getItem('login_user_data')).name) || ((this.userData && this.userData.name) || '未知')
+
+      this.permissionList = this.userData.permission_list
       if (this.$route.name === 'adm') {
         this.chooseType = 'dm'
       } else {
