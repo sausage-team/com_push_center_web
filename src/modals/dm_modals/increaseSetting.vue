@@ -76,7 +76,7 @@
                   :label="item.label">
                 </el-option>
               </el-select>
-              <Input v-model="maximumDate.end.value" placeholder="请输入值" :disabled="maximumDate.end.mode !== 'relative'"></Input>天
+              <Input v-model="maximumDate.end.value" placeholder="请输入值" :disabled="maximumDate.end.mode !== 'relative'"/>天
             </el-radio>
           </el-radio-group>
         </div>
@@ -120,7 +120,7 @@
                   :label="item.label">
                 </el-option>
               </el-select>
-              <Input v-model="relativetime.start.value" placeholder="请输入值" :disabled="relativetime.start.mode !== 'relative'"></Input>天
+              <Input v-model="relativetime.start.value" placeholder="请输入值" :disabled="relativetime.start.mode !== 'relative'"/>天
             </el-radio>
           </el-radio-group>
         </div>

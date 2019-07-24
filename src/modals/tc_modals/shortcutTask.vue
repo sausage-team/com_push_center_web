@@ -19,6 +19,11 @@
       v-model="taskFavUserModal"
       @close="closeFav"
       @saveFav="saveFav"/>
+    <condition-increment
+      v-model="conditionIncrModal"
+      :fields="schemaData.fields"
+      @close="closeConditionIncrModal">
+    </condition-increment>
     <div class="manage-header" slot="header">
       <Icon type="md-arrow-round-back" @click="back($event)"/>
       <span>新建快捷任务</span>
@@ -87,6 +92,17 @@
                   <Input type="textarea" class="item-textarea" v-model="putData.task_describe" placeholder="请输入说明"/>
                   <label>最多支持200字输入</label>
                 </div>
+              </div>
+            </div>
+            <div class="short-item">
+              <div class="item-title">
+                <span>同步方式</span>
+              </div>
+              <div class="item-con">
+                <RadioGroup>
+                  <Radio :label="0">全量</Radio>
+                  <Radio :label="1" @click.native="condictionIncr">条件增量</Radio>
+                </RadioGroup>
               </div>
             </div>
             <div class="short-item">
@@ -294,6 +310,7 @@ export default {
       },
       chooseItem: null,
       ctModal: false,
+      conditionIncrModal: false,
       ctData: [],
       chooseTable: '',
       filter: '',
@@ -378,6 +395,9 @@ export default {
     closeCtModal () {
       this.ctModal = false
     },
+    closeConditionIncrModal () {
+      this.conditionIncrModal = false
+    },
     goTaskSet () {
       this.close()
       this.$emit('input')
@@ -392,6 +412,10 @@ export default {
           this.chooseTableFn(item)
         }
       })
+    },
+    condictionIncr () {
+      console.log(this.schemaData)
+      this.conditionIncrModal = true
     },
     initAt (id) {
     },
@@ -602,7 +626,7 @@ export default {
               push_type: Number(this.taskUserType),
               push_target: (() => {
                 let pushData = []
-                console.log(this.userFilter)
+
                 if (this.taskUserType === '1') {
                   pushData = this.userFilter.map(n => {
                     let tmp = {}

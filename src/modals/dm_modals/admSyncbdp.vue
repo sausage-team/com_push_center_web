@@ -114,19 +114,19 @@
                   <span class="notes">条件增量可使用自增ID或日期字段</span>
                 </div>
                 <div class="increase-wrap" v-show="chooseParams.tables.increaseStatus === 1 && increaseSetting.field">
-                    <div class="content">
-                      <div class="filed">{{increaseSetting.field}}增量</div>
-                      <div class="increase-type-max"
+                  <div class="content">
+                    <div class="filed">{{increaseSetting.field}}增量</div>
+                    <div class="increase-type-max"
                       v-show="increaseSetting.increaseType === 'maximum' &&
-                        (increaseSetting.maxLimit || increaseSetting.nextStart)">
-                        <span v-show="increaseSetting.maxLimit && !increaseSetting.nextStart">最大值限制不超过 {{increaseSetting.maxLimit}}</span>
-                        <span v-show="increaseSetting.nextStart">下次同步从大于 {{increaseSetting.nextStart}} 开始</span>
-                      </div>
-                      <div class="increase-type-relative" v-show="increaseSetting.increaseType === 'relativetime'">
-                        <span>同步范围 {{this.increaseSetting.synDuration}}</span>
-                      </div>
+                      (increaseSetting.maxLimit || increaseSetting.nextStart)">
+                      <span v-show="increaseSetting.maxLimit && !increaseSetting.nextStart">最大值限制不超过 {{increaseSetting.maxLimit}}</span>
+                      <span v-show="increaseSetting.nextStart">下次同步从大于 {{increaseSetting.nextStart}} 开始</span>
                     </div>
-                    <Button @click="openIs(chooseParams.tables.increaseStatus)">修改</Button>
+                    <div class="increase-type-relative" v-show="increaseSetting.increaseType === 'relativetime'">
+                      <span>同步范围 {{this.increaseSetting.synDuration}}</span>
+                    </div>
+                  </div>
+                  <Button @click="openIs(chooseParams.tables.increaseStatus)">修改</Button>
                 </div>
               </div>
             </div>

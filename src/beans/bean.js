@@ -678,6 +678,24 @@ class CONSTANT {
     }
   ]
 
+  fieldDateType = {
+    string: 0,
+    number: 0,
+    date: 1
+  }
+
+  fieldIncreType = [
+    {
+      value: 0,
+      label: '上次同步最大值'
+    },
+    {
+      value: 1,
+      label: '相对时间',
+      disabled: true
+    }
+  ]
+
   increaseType = [
     {
       value: 'maximum',

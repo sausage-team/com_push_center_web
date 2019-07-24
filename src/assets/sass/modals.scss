@@ -2486,6 +2486,106 @@
   }
 }
 
+.conditon-incr-modal {
+  background-color: #F0F2F3;
+
+  .ci-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  .ci-body {
+    width: 100%;
+  
+    .row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+
+      .sub-row {
+        width: 100%;
+        padding-left: 60px;
+        display: flex;
+        align-items: center;
+
+        .note-text {
+          margin-left: 2px;
+        }
+        .select {
+          width: 45px;
+          margin-left: 4px;
+        }
+        .input-val {
+          width: 170px;
+          height: 24px;
+          margin-left: 2px;
+
+          input {
+            height: 100%;
+          }
+        }
+
+        &.date-row {
+          .input-val {
+            width: 70px
+          }
+          .datepicker {
+            height: 24px;
+            width: 180px;
+            margin-left: 2px;
+
+            .el-input__inner {
+              height: 100%;
+            }
+            .el-input__icon {
+              line-height: unset;
+            }
+          }
+        }
+      }
+      .prefix {
+        width: 60px;
+      }
+      .el-radio-group {
+        margin-left: 4px;
+
+        .el-radio {
+          height: 20px;
+          margin-right: 5px;
+          font-weight: normal;
+
+          .el-radio__label {
+            padding-left: 2px;
+          }
+        }
+      }
+      .select {
+        width: 120px;
+        height: 24px;
+  
+        .el-input__inner {
+          height: 100%;
+          padding-left: 0;
+        }
+        .el-input {
+          .el-select__caret {
+            font-size: 10px;
+          }
+        }
+      }
+      .tooltip {
+        margin-left: 4px;
+        font-size: 12px;
+        color: rgba(11,19,32,.38);
+      }
+    }
+  }
+}
+
 .tf-modal {
   .tf-header {
     width: 100%;
