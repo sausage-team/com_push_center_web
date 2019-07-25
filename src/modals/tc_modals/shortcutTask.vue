@@ -22,6 +22,7 @@
     <condition-increment
       v-model="conditionIncrModal"
       :fields="schemaData.fields"
+      @ok="saveConditionIncr"
       @close="closeConditionIncrModal">
     </condition-increment>
     <div class="manage-header" slot="header">
@@ -395,9 +396,6 @@ export default {
     closeCtModal () {
       this.ctModal = false
     },
-    closeConditionIncrModal () {
-      this.conditionIncrModal = false
-    },
     goTaskSet () {
       this.close()
       this.$emit('input')
@@ -486,6 +484,13 @@ export default {
           chooseIndex: undefined
         }]
       }
+    },
+    closeConditionIncrModal () {
+      this.conditionIncrModal = false
+    },
+    saveConditionIncr (data) {
+      console.log('condition increment data')
+      console.log(data)
     },
     chooseTableFn (item) {
       this.tcService.getTableSchema({

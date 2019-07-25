@@ -2500,6 +2500,38 @@
   .ci-body {
     width: 100%;
   
+    .block {
+      width: 100%;
+
+      .sub-block {
+        padding-left: 60px;
+      }
+      .fixed {
+        position: absolute;
+        line-height: 2;
+      }
+      .row {
+        .select-freq {
+          width: 80px;
+          margin: 0 4px;
+        }
+        .time-input-rule {
+          width: calc(100% - 60px);
+        }
+        .timepicker {
+          height: 24px;
+          width: 180px;
+          margin-left: 2px;
+
+          .el-input__inner {
+            height: 100%;
+          }
+          .el-input__icon {
+            line-height: unset;
+          }
+        }
+      }
+    }
     .row {
       display: flex;
       align-items: center;
@@ -2547,6 +2579,16 @@
           }
         }
       }
+      .add-row,
+      .remove-row {
+        padding: 4px;
+        margin-left: 4px;
+        cursor: pointer;
+
+        i {
+          font-weight: bold;
+        }
+      }
       .prefix {
         width: 60px;
       }
@@ -2556,6 +2598,7 @@
         .el-radio {
           height: 20px;
           margin-right: 5px;
+          line-height: 1.5;
           font-weight: normal;
 
           .el-radio__label {
@@ -2568,7 +2611,7 @@
         height: 24px;
   
         .el-input__inner {
-          height: 100%;
+          height: 100% !important;
           padding-left: 0;
         }
         .el-input {

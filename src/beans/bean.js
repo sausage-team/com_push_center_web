@@ -656,6 +656,32 @@ class CONSTANT {
     }
   ]
 
+  syncTimeField = {
+    ORIGIN: 'origin',
+    HOUR: 'delta',
+    CRONTAB: 'crontab',
+    MINUTE: 'minute'
+  }
+
+  syncTimeType = [
+    {
+      value: 'origin',
+      label: '自定义'
+    },
+    {
+      value: 'delta',
+      label: '每小时'
+    },
+    {
+      value: 'crontab',
+      label: 'crontab'
+    },
+    {
+      value: 'minute',
+      label: 'minute'
+    }
+  ]
+
   compareType = [
     {
       value: '>',
@@ -684,17 +710,10 @@ class CONSTANT {
     date: 1
   }
 
-  fieldIncreType = [
-    {
-      value: 0,
-      label: '上次同步最大值'
-    },
-    {
-      value: 1,
-      label: '相对时间',
-      disabled: true
-    }
-  ]
+  fieldIncreType = {
+    maximum: 0,
+    relativetime: 1
+  }
 
   increaseType = [
     {
