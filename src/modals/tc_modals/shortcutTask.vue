@@ -103,8 +103,8 @@
               </div>
               <div class="item-con">
                 <RadioGroup v-model="conditionIncrease">
-                  <Radio :label="false">全量</Radio>
-                  <Radio :label="true" @click.native="condictionIncr">条件增量</Radio>
+                  <Radio :label="0">全量</Radio>
+                  <Radio :label="1" @click.native="condictionIncr">条件增量</Radio>
                 </RadioGroup>
               </div>
             </div>
@@ -304,7 +304,7 @@ export default {
       filter_logic: '',
       taskUserType: '1',
       chooseIndex: -1,
-      conditionIncrease: false,
+      conditionIncrease: 0,
       chooseTag: [],
       mapData: [],
       putData: {
@@ -707,7 +707,7 @@ export default {
         })(),
         increase: { ...this.schemaData.increase },
         timer: { ...this.schemaData.timer },
-        condition_increase: this.conditionIncrease
+        condition_increase: this.conditionIncrease === 1
       }
       console.log(putData)
 
