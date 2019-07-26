@@ -22,8 +22,10 @@
     <condition-increment
       v-model="conditionIncrModal"
       :fields="schemaData.fields"
+      :increase-data="schemaData.increase"
+      :timer-data="schemaData.timer"
       @ok="saveConditionIncr"
-      @close="closeConditionIncrModal">
+      @cancel="cancelConditionIncr">
     </condition-increment>
     <div class="manage-header" slot="header">
       <Icon type="md-arrow-round-back" @click="back($event)"/>
@@ -100,9 +102,9 @@
                 <span>同步方式</span>
               </div>
               <div class="item-con">
-                <RadioGroup>
-                  <Radio :label="0">全量</Radio>
-                  <Radio :label="1" @click.native="condictionIncr">条件增量</Radio>
+                <RadioGroup v-model="conditionIncrease">
+                  <Radio :label="false">全量</Radio>
+                  <Radio :label="true" @click.native="condictionIncr">条件增量</Radio>
                 </RadioGroup>
               </div>
             </div>
@@ -302,6 +304,7 @@ export default {
       filter_logic: '',
       taskUserType: '1',
       chooseIndex: -1,
+      conditionIncrease: false,
       chooseTag: [],
       mapData: [],
       putData: {
@@ -320,7 +323,10 @@ export default {
       chooseTableItem: '',
       chooseFilter: {},
       schemaData: {
-        title_list: []
+        title_list: [],
+        fields: [],
+        increase: {},
+        timer: {}
       },
       filterList: [],
       userFilter: [
@@ -338,32 +344,10 @@ export default {
       chooseTableName: ''
     }
   },
-  created () {
-    this.tcService.getTempList().then(res => {
-      if (res.status === 0) {
-        this.treeList = res.data
-      }
-    })
-    this.tcService.getChannelsData().then(res => {
-      if (res.status === 0) {
-        this.tstdList = []
-        Object.keys(res.data).forEach(key => {
-          const tmp = res.data[key].map(item => {
-            return {
-              ...item,
-              period_list: [
-                {}
-              ]
-            }
-          })
-          this.tstdList = [...this.tstdList, ...tmp]
-        })
-      }
-    })
-  },
   watch: {
     value () {
       if (this.value) {
+        this.init()
         if (!this.mapData || this.mapData.length === 0) {
           this.tcService.getTaskDict().then(res => {
             if (res.status === 0) {
@@ -371,8 +355,7 @@ export default {
             }
           })
         }
-      }
-      if (!this.value) {
+      } else {
         Object.assign(this.$data, this.$options.data())
       }
     },
@@ -390,6 +373,29 @@ export default {
     }
   },
   methods: {
+    init () {
+      this.tcService.getTempList().then(res => {
+        if (res.status === 0) {
+          this.treeList = res.data
+        }
+      })
+      this.tcService.getChannelsData().then(res => {
+        if (res.status === 0) {
+          this.tstdList = []
+          Object.keys(res.data).forEach(key => {
+            const tmp = res.data[key].map(item => {
+              return {
+                ...item,
+                period_list: [
+                  {}
+                ]
+              }
+            })
+            this.tstdList = [...this.tstdList, ...tmp]
+          })
+        }
+      })
+    },
     close () {
       this.$emit('close')
     },
@@ -412,7 +418,6 @@ export default {
       })
     },
     condictionIncr () {
-      console.log(this.schemaData)
       this.conditionIncrModal = true
     },
     initAt (id) {
@@ -488,9 +493,14 @@ export default {
     closeConditionIncrModal () {
       this.conditionIncrModal = false
     },
+    cancelConditionIncr () {
+      this.conditionIncrease = false
+      this.closeConditionIncrModal()
+    },
     saveConditionIncr (data) {
-      console.log('condition increment data')
-      console.log(data)
+      this.schemaData.increase = data.increase
+      this.schemaData.timer = data.timer
+      this.closeConditionIncrModal()
     },
     chooseTableFn (item) {
       this.tcService.getTableSchema({
@@ -593,7 +603,7 @@ export default {
       this.time_d = []
     },
     ok () {
-      if (!this.chooseItem.model_id) {
+      if (!this.chooseItem || !this.chooseItem.model_id) {
         this.$message.error('请选择一个数据模型')
         return
       }
@@ -694,8 +704,13 @@ export default {
             tmp = `${tmp} ${a.name}`
           })
           return tmp
-        })()
+        })(),
+        increase: { ...this.schemaData.increase },
+        timer: { ...this.schemaData.timer },
+        condition_increase: this.conditionIncrease
       }
+      console.log(putData)
+
       this.tcService.saveShortTask(putData).then(res => {
         if (res.status === 0) {
           this.$emit('refresh')

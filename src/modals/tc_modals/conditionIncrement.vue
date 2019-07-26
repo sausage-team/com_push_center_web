@@ -6,7 +6,7 @@
     v-model="value">
     <div class="ci-header" slot="header">
       <span>增量设置</span>
-      <Icon type="md-close" @click="close" />
+      <Icon type="md-close" @click="cancel" />
     </div>
     <div class="ci-body">
       <div class="row">
@@ -24,246 +24,248 @@
         </el-select>
         <span class="tooltip">可使用日期或数值字段，建议使用索引字段</span>
       </div>
-      <div class="row">
-        <label class="prefix">增量方式</label>
-        <el-select class="select"
-          @change="changeMethod"
-          v-model="chooseMethodValue"
-          placeholder="请选择">
-          <el-option
-            v-for="item in fieldIncrMethods"
-            :disabled="item.disabled"
-            :value="item.value"
-            :key="item.value"
-            :label="item.label">
-          </el-option>
-        </el-select>
-      </div>
-      <div class="row" v-show="chooseType === 0">
-        <div class="sub-row">
-          <input type="checkbox"
-            v-model="otherData.end.enable">
-          <span class="note-text">限制最大值不超过</span>
-          <Input class="input-val"
-            placeholder="请输入值"
-            :disabled="!otherData.end.enable"
-            v-model="otherData.end.value"/>
-        </div>
-        <div class="sub-row">
-          <input type="checkbox" v-model="otherData.start.enable">
-          <span class="note-text">下次同步从指定值开始</span>
+      <div v-show="chooseFieldName">
+        <div class="row">
+          <label class="prefix">增量方式</label>
           <el-select class="select"
-            :disabled="!otherData.start.enable"
-            v-model="otherData.start.compare"
+            @change="changeMethod"
+            v-model="chooseMethodValue"
             placeholder="请选择">
             <el-option
-              v-for="item in CONSTANT.compareType"
-              :value="item.value"
-              :key="item.value"
-              :label="item.label">
-            </el-option>
-          </el-select>
-          <Input class="input-val"
-            v-model="otherData.start.value"
-            :disabled="!otherData.start.enable"
-            placeholder="请输入值" />
-        </div>
-      </div>
-      <div class="row" v-show="chooseType === 1">
-        <div class="sub-row date-row">
-          <input type="checkbox" v-model="maxDateData.end.enable">
-          <span class="note-text">限制最大值不超过</span>
-          <el-radio-group
-            :disabled="!maxDateData.end.enable"
-            v-model="maxDateData.end.mode">
-            <el-radio label="today">当前日期</el-radio>
-            <el-radio label="relative">
-              <el-select class="select"
-                :disabled="maxDateData.end.mode != 'relative'"
-                v-model="maxDateData.end.type" placeholder="请选择">
-                <el-option
-                  v-for="item in CONSTANT.dateType"
-                  :value="item.value"
-                  :key="item.value"
-                  :label="item.label">
-                </el-option>
-              </el-select>
-              <Input class="input-val"
-                :disabled="maxDateData.end.mode != 'relative'"
-                v-model="maxDateData.end.value" placeholder="请输入值"/>天
-            </el-radio>
-          </el-radio-group>
-        </div>
-        <div class="sub-row date-row">
-          <input type="checkbox" v-model="maxDateData.start.enable">
-          <span class="note-text">下次同步从指定值开始</span>
-          <el-select class="select"
-            :disabled="!maxDateData.start.enable"
-            v-model="maxDateData.start.compare"
-            placeholder="请选择">
-            <el-option
-              v-for="item in CONSTANT.compareType"
-              :value="item.value"
-              :key="item.value"
-              :label="item.label">
-            </el-option>
-          </el-select>
-          <el-date-picker
-            :disabled="!maxDateData.start.enable"
-            v-model="maxDateData.start.value"
-            align="center"
-            class="datepicker"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            type="datetime"
-            placeholder="选择日期时间">
-          </el-date-picker>
-        </div>
-      </div>
-      <div class="row" v-show="chooseType === 2">
-        <div class="sub-row date-row">
-          <span class="prefix">同步起始点</span>
-          <el-radio-group v-model="relativeDateData.start.mode">
-            <el-radio label="today"
-              @click.native="relativeDateData.start.value = '0'">当前日期</el-radio>
-            <el-radio label="relative">
-              <el-select class="select"
-                :disabled="relativeDateData.start.mode != 'relative'"
-                v-model="relativeDateData.start.type" placeholder="请选择">
-                <el-option
-                  v-for="item in CONSTANT.dateType"
-                  :value="item.value"
-                  :key="item.value"
-                  :label="item.label">
-                </el-option>
-              </el-select>
-              <Input class="input-val"
-                :disabled="relativeDateData.start.mode != 'relative'"
-                v-model="relativeDateData.start.value" placeholder="请输入值"/>天
-            </el-radio>
-          </el-radio-group>
-        </div>
-        <div class="sub-row date-row">
-          <span class="prefix">同步终止点</span>
-          <el-radio-group v-model="relativeDateData.end.mode">
-            <el-radio label="today"
-              @click.native="relativeDateData.end.value = '0'">当前日期</el-radio>
-            <el-radio label="relative">
-              <el-select class="select"
-                :disabled="relativeDateData.end.mode != 'relative'"
-                :value="relativeDateData.end.type"
-                placeholder="请选择">
-                <el-option
-                  v-for="item in CONSTANT.dateType"
-                  :value="item.value"
-                  :key="item.value"
-                  :label="item.label">
-                </el-option>
-              </el-select>
-              <Input class="input-val"
-                :disabled="relativeDateData.end.mode != 'relative'"
-                v-model="relativeDateData.end.value"
-                placeholder="请输入值" />天
-            </el-radio>
-            <el-radio label="unlimited"
-              @click.native="relativeDateData.end.value = ''">不限制</el-radio>
-          </el-radio-group>
-        </div>
-      </div>
-      <div class="row">
-        <label class="prefix">定时同步</label>
-        <el-radio-group v-model="isOpenSync">
-          <el-radio :label="0">开启</el-radio>
-          <el-radio :label="1">关闭</el-radio>
-        </el-radio-group>
-      </div>
-      <div class="block" v-show="isOpenSync === 0">
-        <div class="row" >
-          <label class="prefix">定时类型</label>
-          <el-select class="select"
-            @change="changeSyncType"
-            v-model="chooseSyncType">
-            <el-option
-              v-for="item in CONSTANT.syncTimeType"
+              v-for="item in fieldIncrMethods"
+              :disabled="item.disabled"
               :value="item.value"
               :key="item.value"
               :label="item.label">
             </el-option>
           </el-select>
         </div>
-        <div class="block" v-show="chooseSyncType === CONSTANT.syncTimeField.ORIGIN">
-          <label class="prefix fixed">同步时间</label>
-          <div class="sub-block">
-            <div class="row"
-              v-for="(item, index) in customSyncData.origin"
-              :key="index">
-              <el-time-picker class="timepicker"
-                v-model="customSyncData.origin[index]"
-                value-format="HH:mm"
-                default-value="0"
-                align="center">
-              </el-time-picker>
-              <div class="add-row"
-                v-show="customSyncData.origin.length === index + 1"
-                @click="addCustomRow">
-                <i class="el-icon-plus"></i>
-              </div>
-              <div class="remove-row"
-                v-show="customSyncData.origin.length > 1"
-                @click="removeCustomRow(index)">
-                <i class="el-icon-minus"></i>
+        <div class="row" v-show="chooseType === 0">
+          <div class="sub-row">
+            <input type="checkbox"
+              v-model="otherData.end.enable">
+            <span class="note-text">限制最大值不超过</span>
+            <Input class="input-val"
+              placeholder="请输入值"
+              :disabled="!otherData.end.enable"
+              v-model="otherData.end.value"/>
+          </div>
+          <div class="sub-row">
+            <input type="checkbox" v-model="otherData.start.enable">
+            <span class="note-text">下次同步从指定值开始</span>
+            <el-select class="select"
+              :disabled="!otherData.start.enable"
+              v-model="otherData.start.compare"
+              placeholder="请选择">
+              <el-option
+                v-for="item in CONSTANT.compareType"
+                :value="item.value"
+                :key="item.value"
+                :label="item.label">
+              </el-option>
+            </el-select>
+            <Input class="input-val"
+              v-model="otherData.start.value"
+              :disabled="!otherData.start.enable"
+              placeholder="请输入值" />
+          </div>
+        </div>
+        <div class="row" v-show="chooseType === 1">
+          <div class="sub-row date-row">
+            <input type="checkbox" v-model="maxDateData.end.enable">
+            <span class="note-text">限制最大值不超过</span>
+            <el-radio-group
+              :disabled="!maxDateData.end.enable"
+              v-model="maxDateData.end.mode">
+              <el-radio label="today">当前日期</el-radio>
+              <el-radio label="relative">
+                <el-select class="select"
+                  :disabled="maxDateData.end.mode != 'relative'"
+                  v-model="maxDateData.end.type" placeholder="请选择">
+                  <el-option
+                    v-for="item in CONSTANT.dateType"
+                    :value="item.value"
+                    :key="item.value"
+                    :label="item.label">
+                  </el-option>
+                </el-select>
+                <Input class="input-val"
+                  :disabled="maxDateData.end.mode != 'relative'"
+                  v-model="maxDateData.end.value" placeholder="请输入值"/>天
+              </el-radio>
+            </el-radio-group>
+          </div>
+          <div class="sub-row date-row">
+            <input type="checkbox" v-model="maxDateData.start.enable">
+            <span class="note-text">下次同步从指定值开始</span>
+            <el-select class="select"
+              :disabled="!maxDateData.start.enable"
+              v-model="maxDateData.start.compare"
+              placeholder="请选择">
+              <el-option
+                v-for="item in CONSTANT.compareType"
+                :value="item.value"
+                :key="item.value"
+                :label="item.label">
+              </el-option>
+            </el-select>
+            <el-date-picker
+              :disabled="!maxDateData.start.enable"
+              v-model="maxDateData.start.value"
+              align="center"
+              class="datepicker"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              type="datetime"
+              placeholder="选择日期时间">
+            </el-date-picker>
+          </div>
+        </div>
+        <div class="row" v-show="chooseType === 2">
+          <div class="sub-row date-row">
+            <span class="prefix">同步起始点</span>
+            <el-radio-group v-model="relativeDateData.start.mode">
+              <el-radio label="today"
+                @click.native="relativeDateData.start.value = '0'">当前日期</el-radio>
+              <el-radio label="relative">
+                <el-select class="select"
+                  :disabled="relativeDateData.start.mode != 'relative'"
+                  v-model="relativeDateData.start.type" placeholder="请选择">
+                  <el-option
+                    v-for="item in CONSTANT.dateType"
+                    :value="item.value"
+                    :key="item.value"
+                    :label="item.label">
+                  </el-option>
+                </el-select>
+                <Input class="input-val"
+                  :disabled="relativeDateData.start.mode != 'relative'"
+                  v-model="relativeDateData.start.value" placeholder="请输入值"/>天
+              </el-radio>
+            </el-radio-group>
+          </div>
+          <div class="sub-row date-row">
+            <span class="prefix">同步终止点</span>
+            <el-radio-group v-model="relativeDateData.end.mode">
+              <el-radio label="today"
+                @click.native="relativeDateData.end.value = '0'">当前日期</el-radio>
+              <el-radio label="relative">
+                <el-select class="select"
+                  :disabled="relativeDateData.end.mode != 'relative'"
+                  :value="relativeDateData.end.type"
+                  placeholder="请选择">
+                  <el-option
+                    v-for="item in CONSTANT.dateType"
+                    :value="item.value"
+                    :key="item.value"
+                    :label="item.label">
+                  </el-option>
+                </el-select>
+                <Input class="input-val"
+                  :disabled="relativeDateData.end.mode != 'relative'"
+                  v-model="relativeDateData.end.value"
+                  placeholder="请输入值" />天
+              </el-radio>
+              <el-radio label="unlimited"
+                @click.native="relativeDateData.end.value = ''">不限制</el-radio>
+            </el-radio-group>
+          </div>
+        </div>
+        <div class="row">
+          <label class="prefix">定时同步</label>
+          <el-radio-group v-model="isOpenSync">
+            <el-radio :label="0">开启</el-radio>
+            <el-radio :label="1">关闭</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="block" v-show="isOpenSync === 0">
+          <div class="row" >
+            <label class="prefix">定时类型</label>
+            <el-select class="select"
+              @change="changeSyncType"
+              v-model="chooseSyncType">
+              <el-option
+                v-for="item in CONSTANT.syncTimeType"
+                :value="item.value"
+                :key="item.value"
+                :label="item.label">
+              </el-option>
+            </el-select>
+          </div>
+          <div class="block" v-show="chooseSyncType === CONSTANT.syncTimeField.ORIGIN">
+            <label class="prefix fixed">同步时间</label>
+            <div class="sub-block">
+              <div class="row"
+                v-for="(item, index) in customSyncData.origin"
+                :key="index">
+                <el-time-picker class="timepicker"
+                  v-model="customSyncData.origin[index]"
+                  value-format="HH:mm"
+                  default-value="0"
+                  align="center">
+                </el-time-picker>
+                <div class="add-row"
+                  v-show="customSyncData.origin.length === index + 1"
+                  @click="addCustomRow">
+                  <i class="el-icon-plus"></i>
+                </div>
+                <div class="remove-row"
+                  v-show="customSyncData.origin.length > 1"
+                  @click="removeCustomRow(index)">
+                  <i class="el-icon-minus"></i>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="block" v-show="chooseSyncType === CONSTANT.syncTimeField.HOUR">
-          <div class="row">
-            <label class="prefix">间隔</label>
-            <el-radio-group v-model="hourSyncData.delta">
-              <el-radio label="1">每一小时</el-radio>
-              <el-radio label="2">每两小时</el-radio>
-            </el-radio-group>
+          <div class="block" v-show="chooseSyncType === CONSTANT.syncTimeField.HOUR">
+            <div class="row">
+              <label class="prefix">间隔</label>
+              <el-radio-group v-model="hourSyncData.delta">
+                <el-radio label="1">每一小时</el-radio>
+                <el-radio label="2">每两小时</el-radio>
+              </el-radio-group>
+            </div>
+            <div class="row">
+              <label class="prefix">起始时间</label>
+              <el-time-picker class="timepicker"
+                align="center"
+                value-format="HH:mm"
+                default-value="00:00"
+                v-model="hourSyncData.start"></el-time-picker>
+            </div>
+            <div class="row">
+              <label class="prefix">结束时间</label>
+              <el-time-picker class="timepicker"
+                align="center"
+                value-format="HH:mm"
+                default-value="00:00"
+                v-model="hourSyncData.end"></el-time-picker>
+            </div>
           </div>
-          <div class="row">
-            <label class="prefix">起始时间</label>
-            <el-time-picker class="timepicker"
-              align="center"
-              value-format="HH:mm"
-              default-value="00:00"
-              v-model="hourSyncData.start"></el-time-picker>
+          <div class="row" v-show="chooseSyncType === CONSTANT.syncTimeField.CRONTAB">
+            <label class="prefix">定时配置</label>
+            <Input class="time-input-rule"
+              v-model="crontabSyncData.crontab"
+              placeholder="* */1 * * *"/>
           </div>
-          <div class="row">
-            <label class="prefix">结束时间</label>
-            <el-time-picker class="timepicker"
-              align="center"
-              value-format="HH:mm"
-              default-value="00:00"
-              v-model="hourSyncData.end"></el-time-picker>
+          <div class="row" v-show="chooseSyncType === CONSTANT.syncTimeField.MINUTE">
+            <label class="prefix">同步频次</label>
+            <span>每</span>
+            <el-select class="select select-freq"
+              v-model="minuteSyncDdata.minute">
+              <el-option v-for="(n, i) in 60"
+                :key="i"
+                :label="i"
+                :value="i">
+              </el-option>
+            </el-select>
+            <span>分</span>
           </div>
-        </div>
-        <div class="row" v-show="chooseSyncType === CONSTANT.syncTimeField.CRONTAB">
-          <label class="prefix">定时配置</label>
-          <Input class="time-input-rule"
-            v-model="crontabSyncData.crontab"
-            placeholder="* */1 * * *"/>
-        </div>
-        <div class="row" v-show="chooseSyncType === CONSTANT.syncTimeField.MINUTE">
-          <label class="prefix">同步频次</label>
-          <span>每</span>
-          <el-select class="select select-freq"
-            v-model="minuteSyncDdata.minute">
-            <el-option v-for="(n, i) in 60"
-              :key="i"
-              :label="i"
-              :value="i">
-            </el-option>
-          </el-select>
-          <span>分</span>
         </div>
       </div>
     </div>
     <div slot="footer" class="ct-footer">
       <Button @click="ok">确定</Button>
-      <Button @click="close">取消</Button>
+      <Button @click="cancel">取消</Button>
     </div>
   </Modal>
 </template>
@@ -271,7 +273,9 @@
 export default {
   props: {
     value: Boolean,
-    fields: Array
+    fields: Array,
+    increaseData: Object,
+    timerData: Object
   },
   data () {
     return {
@@ -283,6 +287,7 @@ export default {
       chooseSyncType: 'origin',
       conditions: [],
       fieldIncrMethods: [],
+      // Increment Params
       otherData: {
         start: {
           compare: '>',
@@ -319,6 +324,7 @@ export default {
           value: '0'
         }
       },
+      // Timer Params
       customSyncData: {
         type: 'origin',
         origin: ['00:00'],
@@ -345,23 +351,8 @@ export default {
   },
   methods: {
     init () {
-      // this.conditions = this.fields
+      this.conditions = this.fields
       this.fieldIncrMethods = this.CONSTANT.increaseType
-
-      this.conditions = [
-        {
-          data_type: 'number',
-          name: '数字类型'
-        },
-        {
-          date_type: 'date',
-          name: '日期类型'
-        },
-        {
-          data_type: 'string',
-          name: '字符类型'
-        }
-      ]
     },
     changeField (val) {
       this.conditions.forEach(element => {
@@ -393,36 +384,36 @@ export default {
     changeSyncType () {
       this.resetSync()
     },
-    changeCustomItem (item, index) {
-      console.log(item)
-      console.log(index)
-    },
     addCustomRow () {
       this.customSyncData.origin.push(0)
     },
     removeCustomRow (index) {
       this.customSyncData.origin.splice(index, 1)
     },
-    close () {
-      this.$emit('close')
+    cancel () {
+      this.$emit('cancel')
     },
     ok () {
-      // this.$emit('ok')
+      if (!this.chooseFieldName) {
+        this.$message.error('请选择增量字段')
+        return
+      }
       let incrData = {
         field: this.chooseFieldName,
         type: this.chooseMethodValue
       }
       switch (this.chooseType) {
         case 0:
-          incrData = { ...incrData, ...this.otherData }
+          incrData[incrData.type] = { ...this.otherData }
           break
         case 1:
-          incrData = { ...incrData, ...this.maxDateData }
+          incrData[incrData.type] = { ...this.maxDateData }
           break
         case 2:
-          incrData = { ...incrData, ...this.relativeDateData }
+          incrData[incrData.type] = { ...this.relativeDateData }
           break
       }
+
       let syncData = {}
       if (this.isOpenSync === 0) {
         switch (this.chooseSyncType) {
@@ -458,8 +449,10 @@ export default {
             break
         }
       }
-      console.log(incrData)
-      console.log(syncData)
+      this.$emit('ok', {
+        increase: incrData,
+        timer: syncData
+      })
     },
     resetData () {
       this.otherData = this.$options.data().otherData
