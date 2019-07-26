@@ -104,7 +104,7 @@
               <div class="item-con">
                 <RadioGroup v-model="conditionIncrease">
                   <Radio :label="0">全量</Radio>
-                  <Radio :label="1" @click.native="condictionIncr">条件增量</Radio>
+                  <Radio :label="1" @click.native="showCondictionIncrModal">条件增量</Radio>
                 </RadioGroup>
               </div>
             </div>
@@ -417,9 +417,6 @@ export default {
         }
       })
     },
-    condictionIncr () {
-      this.conditionIncrModal = true
-    },
     initAt (id) {
     },
     changeText (n, index) {
@@ -490,11 +487,21 @@ export default {
         }]
       }
     },
+    showCondictionIncrModal (e) {
+      if (!this.chooseTableItem) {
+        e.preventDefault()
+        e.stopPropagation()
+        this.$message.error('请选择一个数据表')
+        return
+      }
+
+      this.conditionIncrModal = true
+    },
     closeConditionIncrModal () {
       this.conditionIncrModal = false
     },
     cancelConditionIncr () {
-      this.conditionIncrease = false
+      this.conditionIncrease = 0
       this.closeConditionIncrModal()
     },
     saveConditionIncr (data) {
