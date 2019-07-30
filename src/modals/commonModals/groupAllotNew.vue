@@ -16,8 +16,8 @@
           </div>
           <div class="filter-box">
             <input class="search-input"
-              v-model="filterText"
-              @keyup="searchTree"
+              v-model="sourceFilterText"
+              @keyup="searchTree($event, 'source')"
               type="text" required>
             <Icon class="search-icon" type="md-search" />
           </div>
@@ -52,6 +52,8 @@
           </div>
           <div class="filter-box">
             <input class="search-input"
+              v-model="targetFilterText"
+              @keyup="searchTree($event, 'target')"
               type="text" required>
             <Icon class="search-icon" type="md-search" />
           </div>
@@ -63,8 +65,9 @@
               :indent="8"
               :data="triggerList"
               :expand-on-click-node="false"
-              :default-expanded-keys="expandList"
+              :default-expanded-keys="triggerExpand"
               render-after-expand
+              default-expand-all
               :render-content="triggerRender"
               :filter-node-method="filterNode">
             </el-tree>
@@ -93,8 +96,10 @@ export default {
       },
       sourceList: [],
       expandList: [],
-      filterText: '',
+      sourceFilterText: '',
       triggerList: [],
+      triggerExpand: [],
+      targetFilterText: '',
       chooseTag: []
     }
   },
@@ -109,9 +114,16 @@ export default {
     choose (data, node, event) {
       node.checked = !node.checked
     },
-    searchTree (e) {
+    searchTree (e, target) {
       if (e.keyCode === 13) {
-        this.$refs.treeList.filter(this.filterText)
+        switch (target) {
+          case 'source':
+            this.$refs.treeList.filter(this.sourceFilterText)
+            break
+          case 'target':
+            this.$refs.triggerTreeList.filter(this.targetFilterText)
+            break
+        }
       }
     },
     filterNode (value, data, node) {
@@ -122,20 +134,23 @@ export default {
       return false
     },
     toRight (e) {
+      this.constructTriggerTree(this.$refs.treeList.getCheckedKeys())
+    },
+    constructTriggerTree (keys) {
       let stack = []
       const root = 'root'
       const tree = {}
       const treeData = this.$refs.treeList
       const triggerTreeData = this.$refs.triggerTreeList
 
-      treeData.getCheckedKeys().forEach(item => {
+      keys.forEach(item => {
         let node = treeData.getNode(item)
 
         // update trigger checked keys
         let existTriggerNode = triggerTreeData.getNode(item)
         if (existTriggerNode && !existTriggerNode.isAdded && !existTriggerNode.isChecked) {
           existTriggerNode.data.isAdded = true
-          existTriggerNode.data.isChecked = true
+          existTriggerNode.data.isChecked = false
         }
 
         let parentNode = node
@@ -152,7 +167,7 @@ export default {
             ...parentNode.data,
             children: [],
             isAdded: parentNode.checked,
-            isChecked: parentNode.checked
+            isChecked: false
           })
           parentNode = parentNode.parent
         }
@@ -298,12 +313,13 @@ export default {
             const editData = this.$store.state.user.userEditData
             this.userService.getOrgData({
               user_id: editData.id
-            }).then(response => {
-              if (response.status === 0 && response.data) {
-                this.triggerList = [...response.data.organization_code_list.map((item, index) => {
+            }).then(res => {
+              if (res.status === 0 && res.data) {
+                const organizations = res.data.organization_code_list
+                this.triggerList = [...organizations.map((item, index) => {
                   return {
                     code: item,
-                    name: response.data.organization_name_list[index],
+                    name: organizations[index],
                     type: 1
                   }
                 })]
