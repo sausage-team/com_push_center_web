@@ -99,14 +99,14 @@ export default {
       sourceFilterText: '',
       triggerList: [],
       triggerExpand: [],
-      targetFilterText: '',
-      chooseTag: []
+      targetFilterText: ''
     }
   },
   methods: {
     ok () {
       const rets = this.recurseKey(this.triggerList, true)
-      this.$emit('ok', [].concat(rets))
+      console.log(rets)
+      // this.$emit('ok', [].concat(rets))
     },
     close () {
       this.$emit('close')
@@ -137,8 +137,8 @@ export default {
       this.constructTriggerTree(this.$refs.treeList.getCheckedKeys())
     },
     constructTriggerTree (keys) {
-      let stack = []
       const root = 'root'
+      let stack = []
       const tree = {}
       const treeData = this.$refs.treeList
       const triggerTreeData = this.$refs.triggerTreeList
@@ -148,12 +148,27 @@ export default {
 
         // update trigger checked keys
         let existTriggerNode = triggerTreeData.getNode(item)
-        if (existTriggerNode && !existTriggerNode.isAdded && !existTriggerNode.isChecked) {
+        if (existTriggerNode &&
+          !existTriggerNode.isAdded &&
+          !existTriggerNode.isChecked) {
           existTriggerNode.data.isAdded = true
           existTriggerNode.data.isChecked = false
         }
 
-        let parentNode = node
+        // handle checked node
+        if (triggerTreeData.getNode(node.data[this.prKey])) {
+          return
+        }
+
+        stack.push({
+          ...node.data,
+          children: [],
+          isAdded: true,
+          isChecked: false
+        })
+
+        // handle parent node
+        let parentNode = node.parent
         let triggerNode = null
 
         while (parentNode && parentNode.data[this.prKey]) {
@@ -205,12 +220,14 @@ export default {
             ]
           }
         }
+
         stack = []
       })
 
       Object.keys(tree).forEach(key => {
         tree[key].forEach(val => {
           if (key === root) {
+            console.log(this.triggerList)
             triggerTreeData.append(val)
           } else {
             triggerTreeData.append(val, key)
@@ -315,20 +332,20 @@ export default {
               user_id: editData.id
             }).then(res => {
               if (res.status === 0 && res.data) {
-                const organizations = res.data.organization_code_list
-                this.triggerList = [...organizations.map((item, index) => {
-                  return {
-                    code: item,
-                    name: organizations[index],
-                    type: 1
-                  }
-                })]
+                const organizations = res.data.organization_id_list
+                this.constructTriggerTree(organizations)
               }
             })
           }
         })
       } else {
-        Object.assign(this.$data, this.$options.data())
+        this.$nextTick(function () {
+          [...this.triggerList].forEach(data => {
+            this.$refs.triggerTreeList.remove(data)
+          })
+        })
+        this.sourceFilterText = ''
+        this.targetFilterText = ''
       }
     }
   }

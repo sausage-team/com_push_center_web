@@ -346,6 +346,7 @@
       width: calc(100% - 32px);
       height: calc(100% - 64px);
       margin: 16px;
+      overflow: auto;
 
       .tm-right-ul {
         width: 100%;
