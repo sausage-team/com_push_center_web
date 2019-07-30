@@ -84,13 +84,13 @@
       @close="closeEditRole"
       @finish="finshEditRole">
     </edit-role>
-    <group-allot
+    <group-allot-new
       v-model="modals.groupAllot"
       @close="closeGroupAllot"
-      pr-key="code"
+      pr-key="id"
       show-text="name"
       @ok="changeTarget"
-      :change-list="sourceList"></group-allot>
+      :change-list="sourceList"></group-allot-new>
   </div>
 </template>
 <script>

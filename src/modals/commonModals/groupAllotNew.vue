@@ -50,15 +50,24 @@
           <div class="tm-right-header">
             <span>已添加</span>
           </div>
+          <div class="filter-box">
+            <input class="search-input"
+              type="text" required>
+            <Icon class="search-icon" type="md-search" />
+          </div>
           <div class="tm-right-body">
-            <ul class="tm-right-ul">
-              <li v-for="(item, index) in triggerList" :key="index">
-                <Checkbox label="twitter" v-model="item.isChoose">
-                  <span :title="item.name">{{item.name}}</span>
-                </Checkbox>
-                <Icon type="ios-close-circle" @click="removeItem(item, index)" />
-              </li>
-            </ul>
+           <el-tree
+              ref="triggerTreeList"
+              :props="props"
+              :node-key="prKey"
+              :indent="8"
+              :data="triggerList"
+              :expand-on-click-node="false"
+              :default-expanded-keys="expandList"
+              render-after-expand
+              :render-content="triggerRender"
+              :filter-node-method="filterNode">
+            </el-tree>
           </div>
         </div>
       </div>
@@ -91,7 +100,8 @@ export default {
   },
   methods: {
     ok () {
-      this.$emit('ok', [].concat(this.triggerList))
+      const rets = this.recurseKey(this.triggerList, true)
+      this.$emit('ok', [].concat(rets))
     },
     close () {
       this.$emit('close')
@@ -112,28 +122,105 @@ export default {
       return false
     },
     toRight (e) {
-      const tmpData = []
+      let stack = []
+      const root = 'root'
+      const tree = {}
       const treeData = this.$refs.treeList
+      const triggerTreeData = this.$refs.triggerTreeList
+
       treeData.getCheckedKeys().forEach(item => {
-        tmpData.push(treeData.getNode(item).data)
-      })
-      tmpData.forEach(item => {
-        if (!this.utils.checkListInner(this.triggerList, item, this.prKey)) {
-          this.triggerList.push(item)
+        let node = treeData.getNode(item)
+
+        // update trigger checked keys
+        let existTriggerNode = triggerTreeData.getNode(item)
+        if (existTriggerNode && !existTriggerNode.isAdded && !existTriggerNode.isChecked) {
+          existTriggerNode.data.isAdded = true
+          existTriggerNode.data.isChecked = true
         }
+
+        let parentNode = node
+        let triggerNode = null
+
+        while (parentNode && parentNode.data[this.prKey]) {
+          triggerNode = triggerTreeData.getNode(parentNode.data[this.prKey])
+
+          if (triggerNode) {
+            break
+          }
+
+          stack.push({
+            ...parentNode.data,
+            children: [],
+            isAdded: parentNode.checked,
+            isChecked: parentNode.checked
+          })
+          parentNode = parentNode.parent
+        }
+
+        // merge node
+        let key = triggerNode === null ? root : triggerNode.data.id
+
+        if (tree[key]) {
+          let dict = tree[key]
+          while (stack.length > 0) {
+            let node = stack.pop()
+            let next = false
+
+            dict.forEach(val => {
+              if (val.id === node.id) {
+                dict = val.children
+                key = node.id
+                next = true
+              }
+            })
+            if (!next) {
+              stack.push(node)
+              break
+            }
+          }
+          if (stack.length > 0) {
+            dict.push(stack
+              .reduce((child, parent) => ({ ...parent, children: [child] }))
+            )
+          }
+        } else {
+          if (stack.length > 0) {
+            tree[key] = [stack
+              .reduce((child, parent) => ({ ...parent, children: [child] }))
+            ]
+          }
+        }
+        stack = []
       })
-    },
-    removeItem (item, index) {
-      this.triggerList.splice(index, 1)
+
+      Object.keys(tree).forEach(key => {
+        tree[key].forEach(val => {
+          if (key === root) {
+            triggerTreeData.append(val)
+          } else {
+            triggerTreeData.append(val, key)
+          }
+        })
+      })
     },
     toLeft (e) {
-      const tmpData = []
-      this.triggerList.forEach(item => {
-        if (!item.isChoose) {
-          tmpData.push(item)
-        }
+      const recurseKeys = this.recurseKey(this.triggerList, false)
+      const triggerTreeData = this.$refs.triggerTreeList
+      recurseKeys.forEach(ele => {
+        let node = triggerTreeData.getNode(ele.id)
+        if (node) triggerTreeData.remove(node)
       })
-      this.triggerList = tmpData
+    },
+    recurseKey (list, global) {
+      const checks = []
+      list.forEach(ele => {
+        if (ele.isAdded && (global || ele.isChecked)) checks.push(ele)
+        if (ele.children) checks.push(...this.recurseKey(ele.children, global))
+      })
+      return checks
+    },
+    triggerChange (val, data) {
+      data.isChecked = !data.isChecked
     },
     renderContent (h, { node, data, store }) {
       const element = {
@@ -159,6 +246,45 @@ export default {
         })
       ]
       return h('div', element, children)
+    },
+    triggerRender (h, { node, data, store }) {
+      const element = {
+        'class': {
+          'item-con': true
+        }
+      }
+      const children = [
+        h('i', {
+          'class': {
+            'user-icon': data.type === 3,
+            'home-icon': data.type === 1,
+            'group-icon': data.type === 2
+          }
+        }),
+        h('span', {
+          domProps: {
+            innerHTML: data.name
+          },
+          attrs: {
+            title: `${data.name}${(data.identity) ? ('(' + data.identity + ')') : ('')}`
+          }
+        })
+      ]
+      if (data.isAdded) {
+        children.push(
+          h('el-checkbox', {
+            props: {
+              value: data.isChecked
+            },
+            on: {
+              change: (val) => {
+                this.triggerChange(val, data)
+              }
+            }
+          })
+        )
+      }
+      return h('div', element, children)
     }
   },
   watch: {
@@ -168,7 +294,6 @@ export default {
           level: -1
         }).then(res => {
           this.sourceList = res
-          console.log(this.sourceList)
           if (this.$store.state.user.userEditData) {
             const editData = this.$store.state.user.userEditData
             this.userService.getOrgData({
