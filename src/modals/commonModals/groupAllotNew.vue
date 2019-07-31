@@ -105,8 +105,7 @@ export default {
   methods: {
     ok () {
       const rets = this.recurseKey(this.triggerList, true)
-      console.log(rets)
-      // this.$emit('ok', [].concat(rets))
+      this.$emit('ok', [].concat(rets))
     },
     close () {
       this.$emit('close')
@@ -227,7 +226,6 @@ export default {
       Object.keys(tree).forEach(key => {
         tree[key].forEach(val => {
           if (key === root) {
-            console.log(this.triggerList)
             triggerTreeData.append(val)
           } else {
             triggerTreeData.append(val, key)
