@@ -2802,6 +2802,14 @@
   .modal-body {
     width: 100%;
     height: 500px;
+
+    .transfer-main {
+      .tm-right {
+        .tm-right-body {
+          height: calc(100% - 100px);
+        }
+      }
+    }
   }
 }
 
